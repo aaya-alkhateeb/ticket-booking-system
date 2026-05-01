@@ -15,7 +15,26 @@ public class BookingManager {
     }
 
     public boolean bookTicket(String eventId, String customerEmail, double amount) {
-        return false;
+        if (eventId == null || eventId.isBlank()
+                || customerEmail == null || customerEmail.isBlank()
+                || amount <= 0) {
+            return false;
+        }
+
+        if (eventRepository.isSoldOut(eventId)) {
+            return false;
+        }
+
+        String transactionId = paymentGateway.processPayment(amount);
+
+        if (transactionId == null || transactionId.isBlank()) {
+            return false;
+        }
+
+        eventRepository.saveBooking(eventId, customerEmail, transactionId);
+        notificationService.sendConfirmation(customerEmail, eventId, transactionId);
+
+        return true;
     }
 }
 
