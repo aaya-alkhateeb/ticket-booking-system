@@ -1,5 +1,6 @@
 package com.testing.project;
 import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.Test;
 
 
@@ -48,4 +49,22 @@ public class BookingManagerTest {
         verify(notificationService, times(1))
                 .sendConfirmation(customerEmail, eventId, transactionId);
     }
+
+
+@Test
+public void testInvalidInput_shouldNotProcessBoking() {
+	String eventId = "";
+	String customerEmail="test@ala.com";
+	double amount= 100;
+	
+	
+	boolean result= bookingManager.bookTicket(eventId, customerEmail, amount);
+    assertFalse(result);
+    
+    verify(paymentGateway, never()).processPayment(anyDouble());
+    verify(eventRepository, never()).saveBooking(any(), any(), any());
+    verify(notificationService, never()).sendConfirmation(any(), any(), any());
+    
+
+}
 }
