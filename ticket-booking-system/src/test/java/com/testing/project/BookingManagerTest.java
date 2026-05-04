@@ -1,12 +1,10 @@
 package com.testing.project;
+
 import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.Test;
-
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-
 
 public class BookingManagerTest {
 
@@ -50,21 +48,34 @@ public class BookingManagerTest {
                 .sendConfirmation(customerEmail, eventId, transactionId);
     }
 
+    @Test
+    public void testInvalidInput_shouldNotProcessBoking() {
+        String eventId = "";
+        String customerEmail = "test@ala.com";
+        double amount = 100;
 
-@Test
-public void testInvalidInput_shouldNotProcessBoking() {
-	String eventId = "";
-	String customerEmail="test@ala.com";
-	double amount= 100;
-	
-	
-	boolean result= bookingManager.bookTicket(eventId, customerEmail, amount);
-    assertFalse(result);
-    
-    verify(paymentGateway, never()).processPayment(anyDouble());
-    verify(eventRepository, never()).saveBooking(any(), any(), any());
-    verify(notificationService, never()).sendConfirmation(any(), any(), any());
-    
+        boolean result = bookingManager.bookTicket(eventId, customerEmail, amount);
+        assertFalse(result);
 
-}
+        verify(paymentGateway, never()).processPayment(anyDouble());
+        verify(eventRepository, never()).saveBooking(any(), any(), any());
+        verify(notificationService, never()).sendConfirmation(any(), any(), any());
+    }
+
+    @Test
+    public void testBookTicket_WhenSoldOut_ShouldReturnFalse() {
+        String eventId = "E123";
+        String customerEmail = "user@example.com";
+        double amount = 100.0;
+
+        when(eventRepository.isSoldOut(eventId)).thenReturn(true);[cite: 1]
+
+        boolean result = bookingManager.bookTicket(eventId, customerEmail, amount);
+
+        assertFalse(result);[cite: 1]
+        verify(eventRepository, times(1)).isSoldOut(eventId);[cite: 1]
+        verify(paymentGateway, never()).processPayment(anyDouble());[cite: 1]
+        verify(eventRepository, never()).saveBooking(anyString(), anyString(), anyString());[cite: 1]
+        verify(notificationService, never()).sendConfirmation(anyString(), anyString(), anyString());[cite: 1]
+    }
 }

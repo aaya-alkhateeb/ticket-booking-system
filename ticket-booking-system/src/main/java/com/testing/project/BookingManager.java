@@ -48,6 +48,5 @@ interface INotificationService {
 
 interface IEventRepository {
     boolean isSoldOut(String eventId);
-
     void saveBooking(String eventId, String customerEmail, String transactionId);
 }
